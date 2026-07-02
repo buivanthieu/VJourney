@@ -21,21 +21,21 @@ export default function AdminLayout({
         <nav className="flex-grow p-4 space-y-2 text-sm font-medium">
           <Link 
             href="/admin/dashboard" 
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-slate-800 text-white transition-colors"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            📊 Tổng quan hệ thống
+          </Link>
+          <Link 
+            href="/admin/dashboard/tours" 
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
           >
             🗺️ Quản lý Tour du lịch
           </Link>
           <Link 
-            href="#" 
+            href="/admin/dashboard/posts" 
             className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
           >
-            📂 Quản lý Danh mục
-          </Link>
-          <Link 
-            href="#" 
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-          >
-            🛒 Quản lý Đơn đặt tour
+            📂 Quản lý Cẩm nang / Blog
           </Link>
         </nav>
 
