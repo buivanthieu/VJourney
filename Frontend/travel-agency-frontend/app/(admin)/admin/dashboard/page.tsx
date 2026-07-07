@@ -8,7 +8,7 @@ import { tourApi } from "@/lib/api";
 export default function AdminDashboardOverview() {
   const [stats, setStats] = useState({ toursCount: 0, postsCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://localhost:7001/api";
+  const API_URL = "http://localhost:5187/api";
 
   useEffect(() => {
     const fetchStats = async () => {

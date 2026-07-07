@@ -22,7 +22,7 @@ export default function ClientLayout({
             <Link href="/" className="hover:text-emerald-600 transition-colors">Trang chủ</Link>
             <Link href="/tours" className="hover:text-emerald-600 transition-colors">Danh sách Tour</Link>
             <Link href="#" className="hover:text-emerald-600 transition-colors">Về chúng tôi</Link>
-            <Link href="#" className="hover:text-emerald-600 transition-colors">Cẩm nang du lịch</Link>
+            <Link href="/blog" className="hover:text-emerald-600 transition-colors">Cẩm nang du lịch</Link>
             <Link href="#" className="hover:text-emerald-600 transition-colors">Liên hệ</Link>
           </nav>
 

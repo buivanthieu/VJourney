@@ -13,7 +13,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!tour) return { title: "Không tìm thấy Tour - Origin Travel" };
 
-  // Lấy một đoạn text ngắn từ Content HTML để làm thẻ description cho Google
   const plainTextDescription = tour.content ? tour.content.replace(/<[^>]*>/g, "").substring(0, 160) : "";
 
   return {
@@ -56,7 +55,7 @@ export default async function TourDetailPage({ params }: Props) {
       <div className="mx-auto max-w-5xl px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* CỘT TRÁI: HIỂN THỊ NỘI DUNG TỪ TRÌNH SOẠN THẢO WORD (HTML) */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="lg:col-span-2 flex flex-col gap-6 w-full min-w-0"> {/* Thêm min-w-0 để flexbox không bị phình kích thước */}
           <div className="grid grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-sm">
             <div><span className="block text-slate-400 text-xs">Thời gian</span><span className="font-semibold text-slate-800">🕒 {tour.duration}</span></div>
             <div><span className="block text-slate-400 text-xs">Khởi hành</span><span className="font-semibold text-slate-800">📍 {tour.startLocation}</span></div>
@@ -64,12 +63,13 @@ export default async function TourDetailPage({ params }: Props) {
           </div>
 
           {/* KHU VỰC ĐỔ NỘI DUNG HTML CHI TIẾT (CHUẨN SEO) */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm w-full overflow-hidden">
             <h2 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">Chi tiết chương trình & Lịch trình</h2>
             
-            {/* Sử dụng class prose của Tailwind để tự động format các thẻ h1, h2, p, img trong chuỗi HTML cho đẹp */}
+            {/* FIX THẦN THÁNH: Thêm whitespace-normal để hóa giải &nbsp; thành dấu cách thông thường */}
             <div 
-              className="prose max-w-none text-slate-600 text-sm leading-relaxed space-y-4"
+              className="prose max-w-none text-slate-600 text-sm leading-relaxed space-y-4 whitespace-normal break-words"
+              style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
               dangerouslySetInnerHTML={{ __html: tour.content }} 
             />
           </div>

@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 2. Lấy danh sách toàn bộ tour từ API .NET để tự động sinh link động
   const tours = await tourApi.getAllTours();
-  const tourRoutes = tours.map((tour) => ({
+  const tourRoutes = tours.map((tour: { slug: any; }) => ({
     url: `${baseUrl}/tours/${tour.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

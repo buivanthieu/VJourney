@@ -44,6 +44,7 @@ export default function ToursPage() {
         
         setTours(tourData as unknown as TourItemNew[]);
         setLocations(locData);
+        console.log("Dữ liệu tour đã được đồng bộ:", tourData);
       } catch (err) {
         console.error("Lỗi đồng bộ dữ liệu trang danh sách:", err);
       } finally {

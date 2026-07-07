@@ -1,87 +1,98 @@
 // lib/api.ts
-import { TourItem } from "@/components/TourCard";
-
 const API_BASE_URL = "http://localhost:5187/api";
 
 export const tourApi = {
-  // --- PHÂN HỆ TOUR (Giữ nguyên các hàm cũ của ông) ---
-  getAllTours: async (): Promise<TourItem[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/tours`, { cache: "no-store" });
-      if (!response.ok) throw new Error("Không thể kết nối đến hệ thống Backend.");
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
+  // ==================== PHÂN HỆ TOUR ====================
+  getAllTours: async () => {
+    const res = await fetch(`${API_BASE_URL}/tours`, { cache: "no-store" });
+    return res.ok ? await res.json() : [];
   },
-
-  getTourBySlug: async (slug: string): Promise<any | null> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/tours/${slug}`, { cache: "no-store" });
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+  getTourBySlug: async (slug: string) => {
+    const res = await fetch(`${API_BASE_URL}/tours/${slug}`, { cache: "no-store" });
+    return res.ok ? await res.json() : null;
   },
-
-  createTour: async (tourData: any): Promise<{ success: boolean; data?: any; error?: string }> => {
+  createTour: async (data: any) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/tours`, {
+      const res = await fetch(`${API_BASE_URL}/tours`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tourData),
+        body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error("Lỗi khi lưu tour vào cơ sở dữ liệu.");
-      return { success: true, data: await response.json() };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+      return { success: res.ok, error: res.ok ? null : "Lỗi Server" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+  updateTour: async (id: string, data: any) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/tours/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
+    }
+  },
+  deleteTour: async (id: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/tours/${id}`, { method: "DELETE" });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
     }
   },
 
-  // --- NÂNG CẤP: GOM CÁC HÀM ĐỊA ĐIỂM & BLOG VÀO ĐÂY ---
-  
-  /**
-   * Lấy danh sách toàn bộ Địa điểm / Vùng miền để lọc Tour
-   */
-  getLocations: async (): Promise<any[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/locations`, { cache: "no-store" });
-      if (!response.ok) return [];
-      return await response.json();
-    } catch (error) {
-      console.error("Lỗi Fetch Địa điểm:", error);
-      return [];
-    }
+  // ==================== PHÂN HỆ LOCATIONS & CATEGORIES ====================
+  getLocations: async () => {
+    const res = await fetch(`${API_BASE_URL}/locations`, { cache: "no-store" });
+    return res.ok ? await res.json() : [];
+  },
+  getBlogCategories: async () => {
+    const res = await fetch(`${API_BASE_URL}/blog-categories`, { cache: "no-store" });
+    return res.ok ? await res.json() : [];
   },
 
-  /**
-   * Lấy toàn bộ bài viết Cẩm nang / Blog
-   */
-  getAllPosts: async (): Promise<any[]> => {
+  // ==================== PHÂN HỆ BLOG / POSTS (CRUD ĐẦY ĐỦ) ====================
+  getAllPosts: async () => {
+    const res = await fetch(`${API_BASE_URL}/posts`, { cache: "no-store" });
+    return res.ok ? await res.json() : [];
+  },
+  getPostBySlug: async (slug: string) => {
+    const res = await fetch(`${API_BASE_URL}/posts/${slug}`, { cache: "no-store" });
+    return res.ok ? await res.json() : null;
+  },
+  createPost: async (data: any) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/posts`, { cache: "no-store" });
-      if (!response.ok) return [];
-      return await response.json();
-    } catch (error) {
-      console.error("Lỗi Fetch Bài viết:", error);
-      return [];
+      const res = await fetch(`${API_BASE_URL}/posts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return { success: res.ok, error: res.ok ? null : "Lỗi lưu bài viết" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   },
-
-  /**
-   * Lấy chi tiết một bài viết Blog theo Slug để hiển thị bài đọc
-   */
-  getPostBySlug: async (slug: string): Promise<any | null> => {
+  updatePost: async (id: string, data: any) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/posts/${slug}`, { cache: "no-store" });
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (error) {
-      console.error("Lỗi Fetch Chi tiết bài viết:", error);
-      return null;
+      const res = await fetch(`${API_BASE_URL}/posts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
     }
-  }
+  },
+  deletePost: async (id: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/posts/${id}`, { method: "DELETE" });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
+    }
+  },
 };

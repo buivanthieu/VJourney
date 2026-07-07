@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null); // State kiểm tra chế độ Sửa
 
   const [formData, setFormData] = useState({
     title: "",
@@ -46,22 +47,19 @@ export default function AdminDashboard() {
     price: "",
     locationId: "",
     image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80",
-    content: "", // Nơi nhận mã HTML tự động từ bộ gõ Quill
+    content: "", 
   });
 
-  // TÁI CẤU TRÚC: Gọi các hàm đồng bộ đã gom nhóm trong lib/api.ts
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // 1. Gọi hàm getLocations tập trung từ file api.ts
       const locData = await tourApi.getLocations();
       setLocations(locData);
       
-      if (locData.length > 0) {
+      if (locData.length > 0 && !editingId) {
         setFormData(prev => ({ ...prev, locationId: locData[0].id }));
       }
 
-      // 2. Gọi hàm getAllTours từ file api.ts
       const tourData = await tourApi.getAllTours();
       setTours(tourData as unknown as TourItemNew[]);
     } catch (err) {
@@ -80,9 +78,36 @@ export default function AdminDashboard() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Hàm bắt riêng sự kiện gõ chữ đổi định dạng của Quill Editor
   const handleEditorChange = (contentValue: string) => {
     setFormData((prev) => ({ ...prev, content: contentValue }));
+  };
+
+  // Kích hoạt chế độ SỬA TOUR
+  const handleEditClick = (tour: TourItemNew) => {
+    setEditingId(tour.id);
+    setFormData({
+      title: tour.title,
+      duration: tour.duration,
+      startLocation: tour.startLocation,
+      price: String(tour.price),
+      locationId: tour.locationId,
+      image: tour.image,
+      content: tour.content,
+    });
+    setIsFormOpen(true);
+  };
+
+  // Xử lý XÓA TOUR
+  const handleDeleteClick = async (id: string) => {
+    if (!window.confirm("Ông có chắc chắn muốn xóa chương trình tour này không?")) return;
+    
+    const res = await tourApi.deleteTour(id);
+    if (res.success) {
+      alert("🗑️ Đã xóa chương trình tour thành công!");
+      loadData();
+    } else {
+      alert("Xóa tour thất bại.");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +115,11 @@ export default function AdminDashboard() {
     if (!formData.title.trim() || !formData.price || !formData.locationId) {
       return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
     }
+
+    // BIỆN PHÁP CHỐNG TRÀN CHỮ: Thay thế triệt để dấu cách dính liền &nbsp; thành dấu cách trống chuẩn
+    const cleanContent = formData.content
+      .replace(/&nbsp;/g, " ")
+      .replace(/\u00a0/g, " ");
 
     const payload = {
       title: formData.title,
@@ -99,14 +129,20 @@ export default function AdminDashboard() {
       startLocation: formData.startLocation,
       price: Number(formData.price),
       locationId: formData.locationId,
-      content: formData.content, // Bắn nguyên đoạn HTML sạch từ Quill xuống DB
+      content: cleanContent, 
     };
 
-    const result = await tourApi.createTour(payload);
+    let result;
+    if (editingId) {
+      result = await tourApi.updateTour(editingId, payload);
+    } else {
+      result = await tourApi.createTour(payload);
+    }
 
     if (result.success) {
-      alert("🎉 Đã lưu chương trình Tour & Lịch trình thành công!");
+      alert(editingId ? "🎉 Đã cập nhật thông tin Tour thành công!" : "🎉 Đã tạo chương trình Tour mới thành công!");
       setIsFormOpen(false);
+      setEditingId(null);
       setFormData({
         title: "",
         duration: "",
@@ -118,18 +154,17 @@ export default function AdminDashboard() {
       });
       loadData();
     } else {
-      alert(`Thất bại: ${result.error}`);
+      alert("Thao tác thất bại.");
     }
   };
 
-  // Cấu hình các nút bấm trên thanh công cụ (Toolbar) giống như Microsoft Word
   const quillModules = {
     toolbar: [
-      [{ header: [2, 3, 4, false] }], // Thẻ tiêu đề chuẩn SEO H2, H3, H4
-      ["bold", "italic", "underline", "strike"], // Bôi đậm, nghiêng, gạch chân
-      [{ list: "ordered" }, { list: "bullet" }], // Danh sách số, dấu chấm tròn
-      ["link", "image", "video"], // Chèn link, ảnh, nhúng video YouTube
-      ["clean"], // Nút xóa định dạng nhanh
+      [{ header: [2, 3, 4, false] }], 
+      ["bold", "italic", "underline", "strike"], 
+      [{ list: "ordered" }, { list: "bullet" }], 
+      ["link", "image", "video"], 
+      ["clean"], 
     ],
   };
 
@@ -143,7 +178,10 @@ export default function AdminDashboard() {
           <p className="text-xs text-slate-500">Trải nghiệm soạn thảo lịch trình trực quan như Microsoft Word</p>
         </div>
         <button
-          onClick={() => setIsFormOpen(!isFormOpen)}
+          onClick={() => {
+            setIsFormOpen(!isFormOpen);
+            if (isFormOpen) setEditingId(null);
+          }}
           className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors ${
             isFormOpen ? "bg-slate-600" : "bg-emerald-600 hover:bg-emerald-700"
           }`}
@@ -152,10 +190,12 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* FORM THÊM TOUR MỚI CHỨA BỘ GÕ QUÍLL */}
+      {/* FORM THÊM / SỬA TOUR CHỨA BỘ GÕ QUILL */}
       {isFormOpen && (
         <form onSubmit={handleSubmit} className="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <h3 className="font-bold text-slate-900 md:col-span-2 text-xs uppercase text-emerald-600 tracking-wider">Biểu mẫu thiết lập</h3>
+          <h3 className="font-bold text-slate-900 md:col-span-2 text-xs uppercase text-emerald-600 tracking-wider">
+            {editingId ? "Biểu mẫu chỉnh sửa Tour" : "Biểu mẫu thiết lập Tour mới"}
+          </h3>
           
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Tour du lịch *</label>
@@ -184,12 +224,12 @@ export default function AdminDashboard() {
             </select>
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Đường dẫn ảnh đại diện (URL)</label>
             <input type="text" name="image" value={formData.image} onChange={handleInputChange} className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 text-slate-500" />
           </div>
 
-          {/* NHÚNG BỘ SOẠN THẢO WORD CHUYÊN NGHIỆP */}
+          {/* NHÚNG BỘ SOẠN THẢO WORD */}
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-2">
               Lịch trình chi tiết & Điều khoản dịch vụ (Chuẩn SEO)
@@ -207,13 +247,13 @@ export default function AdminDashboard() {
 
           <div className="md:col-span-2 mt-4">
             <button type="submit" className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-sm">
-              Lưu Chương Trình Tour
+              {editingId ? "Cập Nhật Chương Trình Tour" : "Lưu Chương Trình Tour"}
             </button>
           </div>
         </form>
       )}
 
-      {/* BẢNG VIEW DANH SÁCH TOURS */}
+      {/* BẢNG VIEW DANH SÁCH TOURS KÈM NÚT SỬA/XÓA */}
       {isLoading ? (
         <div className="text-center py-12 text-sm text-slate-500">Đang nạp dữ liệu...</div>
       ) : (
@@ -225,6 +265,7 @@ export default function AdminDashboard() {
                 <th className="p-4">Chương trình Tour</th>
                 <th className="p-4 w-36">Địa điểm</th>
                 <th className="p-4 w-40 text-right">Giá niêm yết</th>
+                <th className="p-4 w-44 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -236,7 +277,23 @@ export default function AdminDashboard() {
                     <div className="text-xs text-slate-400 mt-1">🕒 {tour.duration} | 📍 Khởi hành: {tour.startLocation}</div>
                   </td>
                   <td className="p-4"><span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">{tour.location?.name || "Chưa gán"}</span></td>
-                  <td className="p-4 text-right font-extrabold text-slate-900">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.price)}</td>
+                  <td className="p-4 text-right font-extrabold text-slate-900">
+                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.price)}
+                  </td>
+                  <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                    <button
+                      onClick={() => handleEditClick(tour)}
+                      className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
+                    >
+                      ✏️ Sửa
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(tour.id)}
+                      className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
+                    >
+                      🗑️ Xóa
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
