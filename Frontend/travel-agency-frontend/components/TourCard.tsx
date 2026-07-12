@@ -4,7 +4,7 @@ import Link from "next/link";
 
 // Định nghĩa kiểu dữ liệu cho một Tour (giống như DTO trong C#)
 export interface TourItem {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   image: string;

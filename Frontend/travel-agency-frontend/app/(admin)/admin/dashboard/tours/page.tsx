@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { tourApi } from "@/lib/api";
+import { supabase } from "@/lib/supabaseClient"; // Import client kết nối Supabase của ông
 
 // Import CSS giao diện của bộ gõ Quill
 import "react-quill-new/dist/quill.snow.css";
@@ -15,20 +16,20 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 });
 
 interface LocationItem {
-  id: string;
+  id: number;
   name: string;
   slug: string;
 }
 
 interface TourItemNew {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   image: string;
   duration: string;
   price: number;
   startLocation: string;
-  locationId: string;
+  locationId: number;
   location?: LocationItem;
   content: string;
 }
@@ -38,15 +39,18 @@ export default function AdminDashboard() {
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null); // State kiểm tra chế độ Sửa
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  // Thêm trạng thái quản lý tiến trình upload ảnh
+  const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
     duration: "",
     startLocation: "Hà Nội",
     price: "",
-    locationId: "",
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80",
+    locationId: 0,
+    image: "", // Sẽ lưu đường dẫn CDN từ Supabase hoặc URL mặc định
     content: "", 
   });
 
@@ -82,6 +86,46 @@ export default function AdminDashboard() {
     setFormData((prev) => ({ ...prev, content: contentValue }));
   };
 
+  // ─── XỬ LÝ UPLOAD ẢNH THẲNG LÊN SUPABASE STORAGE ───
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+
+      // Tạo tên file ngẫu nhiên để không bị trùng lặp trên Cloud CDN
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `tours/${fileName}`; // Đẩy vào thư mục 'tours' trong Bucket
+
+      // Upload file lên bucket 'vjourney-images'
+      const { error: uploadError } = await supabase.storage
+        .from('vjourney-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Lấy link URL công khai của ảnh vừa upload
+      const { data } = supabase.storage
+        .from('vjourney-images')
+        .getPublicUrl(filePath);
+
+      // Lưu trực tiếp URL thu được vào state formData để chuẩn bị Submit
+      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+      console.log('Link ảnh Supabase CDN của Tour:', data.publicUrl);
+
+    } catch (error) {
+      console.error('Lỗi trong quá trình upload ảnh:', error);
+      alert('Upload ảnh thất bại, vui lòng kiểm tra lại cấu hình Bucket!');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Kích hoạt chế độ SỬA TOUR
   const handleEditClick = (tour: TourItemNew) => {
     setEditingId(tour.id);
@@ -98,7 +142,7 @@ export default function AdminDashboard() {
   };
 
   // Xử lý XÓA TOUR
-  const handleDeleteClick = async (id: string) => {
+  const handleDeleteClick = async (id: number) => {
     if (!window.confirm("Ông có chắc chắn muốn xóa chương trình tour này không?")) return;
     
     const res = await tourApi.deleteTour(id);
@@ -116,7 +160,11 @@ export default function AdminDashboard() {
       return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
     }
 
-    // BIỆN PHÁP CHỐNG TRÀN CHỮ: Thay thế triệt để dấu cách dính liền &nbsp; thành dấu cách trống chuẩn
+    if (!formData.image) {
+      return alert("Vui lòng đợi ảnh upload xong hoặc chọn một ảnh đại diện cho Tour!");
+    }
+
+    // Biện pháp chống tràn chữ: Xử lý xóa ký tự rác &nbsp;
     const cleanContent = formData.content
       .replace(/&nbsp;/g, " ")
       .replace(/\u00a0/g, " ");
@@ -124,7 +172,7 @@ export default function AdminDashboard() {
     const payload = {
       title: formData.title,
       slug: formData.title.toLowerCase().trim().replace(/ /g, "-").replace(/[^\w-]+/g, ""),
-      image: formData.image,
+      image: formData.image, // URL Text lấy từ Supabase Storage đã nằm sẵn ở đây
       duration: formData.duration || "Chưa xác định",
       startLocation: formData.startLocation,
       price: Number(formData.price),
@@ -148,8 +196,8 @@ export default function AdminDashboard() {
         duration: "",
         startLocation: "Hà Nội",
         price: "",
-        locationId: locations[0]?.id || "",
-        image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80",
+        locationId: locations[0]?.id || 0,
+        image: "",
         content: "",
       });
       loadData();
@@ -190,12 +238,36 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* FORM THÊM / SỬA TOUR CHỨA BỘ GÕ QUILL */}
+      {/* FORM THÊM / SỬA TOUR CHỨA BỘ GÕ QUILL & UPLOAD FILE */}
       {isFormOpen && (
         <form onSubmit={handleSubmit} className="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
           <h3 className="font-bold text-slate-900 md:col-span-2 text-xs uppercase text-emerald-600 tracking-wider">
             {editingId ? "Biểu mẫu chỉnh sửa Tour" : "Biểu mẫu thiết lập Tour mới"}
           </h3>
+
+          {/* KHỐI CHỌN FILE ẢNH VÀ XỬ LÝ UPLOAD LÊN CLOUD */}
+          <div className="md:col-span-2 bg-white p-4 rounded-xl border border-dashed border-slate-300">
+            <label className="block text-xs font-semibold text-slate-700 mb-2">Hình ảnh đại diện Tour *</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              disabled={isUploading}
+              className="w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer disabled:opacity-50"
+            />
+            {isUploading && (
+              <p className="text-emerald-600 text-[10px] mt-2 animate-pulse font-medium">
+                🚀 Đang đồng bộ và tải ảnh lên hệ thống Supabase Cloud Storage...
+              </p>
+            )}
+            
+            {formData.image && (
+              <div className="mt-3">
+                <p className="text-emerald-600 text-[10px] mb-1 font-semibold">✓ Ảnh CDN đã sẵn sàng:</p>
+                <img src={formData.image} alt="Preview" className="h-40 w-full object-cover rounded-lg border shadow-xs" />
+              </div>
+            )}
+          </div>
           
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Tên Tour du lịch *</label>
@@ -224,11 +296,6 @@ export default function AdminDashboard() {
             </select>
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Đường dẫn ảnh đại diện (URL)</label>
-            <input type="text" name="image" value={formData.image} onChange={handleInputChange} className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 text-slate-500" />
-          </div>
-
           {/* NHÚNG BỘ SOẠN THẢO WORD */}
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-2">
@@ -246,14 +313,20 @@ export default function AdminDashboard() {
           </div>
 
           <div className="md:col-span-2 mt-4">
-            <button type="submit" className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-sm">
-              {editingId ? "Cập Nhật Chương Trình Tour" : "Lưu Chương Trình Tour"}
+            <button 
+              type="submit" 
+              disabled={isUploading}
+              className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-colors shadow-sm ${
+                isUploading ? "bg-slate-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+            >
+              {isUploading ? "Vui lòng đợi ảnh tải xong..." : editingId ? "Cập Nhật Chương Trình Tour" : "Lưu Chương Trình Tour"}
             </button>
           </div>
         </form>
       )}
 
-      {/* BẢNG VIEW DANH SÁCH TOURS KÈM NÚT SỬA/XÓA */}
+      {/* BẢNG VIEW DANH SÁCH TOURS */}
       {isLoading ? (
         <div className="text-center py-12 text-sm text-slate-500">Đang nạp dữ liệu...</div>
       ) : (
@@ -281,18 +354,8 @@ export default function AdminDashboard() {
                     {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.price)}
                   </td>
                   <td className="p-4 text-right space-x-2 whitespace-nowrap">
-                    <button
-                      onClick={() => handleEditClick(tour)}
-                      className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
-                    >
-                      ✏️ Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(tour.id)}
-                      className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
-                    >
-                      🗑️ Xóa
-                    </button>
+                    <button onClick={() => handleEditClick(tour)} className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded-md font-semibold transition-colors">✏️ Sửa</button>
+                    <button onClick={() => handleDeleteClick(tour.id)} className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md font-semibold transition-colors">🗑️ Xóa</button>
                   </td>
                 </tr>
               ))}

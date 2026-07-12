@@ -6,7 +6,7 @@ namespace TravelApi.Models
     public class BlogCategory
     {
         [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();  
+        public int Id { get; set; }  
 
         [Required]
         [MaxLength(150)]
@@ -15,5 +15,7 @@ namespace TravelApi.Models
         [Required]
         [MaxLength(150)]
         public string Slug { get; set; } = string.Empty;  
+
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }

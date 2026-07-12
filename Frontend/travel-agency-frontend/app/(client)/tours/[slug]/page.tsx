@@ -59,7 +59,7 @@ export default async function TourDetailPage({ params }: Props) {
           <div className="grid grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-sm">
             <div><span className="block text-slate-400 text-xs">Thời gian</span><span className="font-semibold text-slate-800">🕒 {tour.duration}</span></div>
             <div><span className="block text-slate-400 text-xs">Khởi hành</span><span className="font-semibold text-slate-800">📍 {tour.startLocation}</span></div>
-            <div><span className="block text-slate-400 text-xs">Vùng miền</span><span className="font-semibold text-slate-800">🗺️ {tour.location?.name || "Toàn quốc"}</span></div>
+            <div><span className="block text-slate-400 text-xs">Vùng miền</span><span className="font-semibold text-slate-800">🗺️ {tour.locationName || "Toàn quốc"}</span></div>
           </div>
 
           {/* KHU VỰC ĐỔ NỘI DUNG HTML CHI TIẾT (CHUẨN SEO) */}

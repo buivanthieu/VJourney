@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { tourApi } from "@/lib/api";
+import { supabase } from "@/lib/supabaseClient"; // Kết nối Supabase Cloud của ông
 
 // Import CSS giao diện của bộ gõ Quill
 import "react-quill-new/dist/quill.snow.css";
@@ -15,20 +16,20 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 });
 
 interface BlogCategoryItem {
-  id: string;
+  id: number;
   name: string;
   slug: string;
 }
 
 interface PostItem {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   image: string;
   summary: string;
   content: string;
   createdAt: string;
-  blogCategoryId: string;
+  blogCategoryId: number;
   blogCategory?: BlogCategoryItem;
 }
 
@@ -37,13 +38,16 @@ export default function AdminPostsDashboard() {
   const [categories, setCategories] = useState<BlogCategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null); // State kiểm tra xem đang Sửa bài nào
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  // Trạng thái tiến trình tải ảnh lên Cloud Storage
+  const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
-    blogCategoryId: "",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    blogCategoryId: 0,
+    image: "", // Lưu link ảnh CDN công khai
     content: "",
   });
 
@@ -53,7 +57,7 @@ export default function AdminPostsDashboard() {
       const catData = await tourApi.getBlogCategories();
       setCategories(catData);
       
-      if (catData.length > 0) {
+      if (catData.length > 0 && !editingId) {
         setFormData(prev => ({ ...prev, blogCategoryId: catData[0].id }));
       }
 
@@ -79,6 +83,46 @@ export default function AdminPostsDashboard() {
     setFormData((prev) => ({ ...prev, content: contentValue }));
   };
 
+  // ─── XỬ LÝ UPLOAD ẢNH BANNER BLOG LÊN SUPABASE STORAGE ───
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+
+      // Tạo tên file ngẫu nhiên tránh trùng trên Cloud
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `posts/${fileName}`; // Ảnh gom vào folder 'posts' trong Bucket
+
+      // Tiến hành upload file
+      const { error: uploadError } = await supabase.storage
+        .from('vjourney-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Lấy link CDN công khai
+      const { data } = supabase.storage
+        .from('vjourney-images')
+        .getPublicUrl(filePath);
+
+      // Đút link ảnh vào State để submit sang .NET
+      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+      console.log('Link ảnh Supabase CDN của Post:', data.publicUrl);
+
+    } catch (error) {
+      console.error('Lỗi upload ảnh bài viết:', error);
+      alert('Tải ảnh bài viết thất bại, vui lòng thử lại!');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Kích hoạt chế độ SỬA bài viết
   const handleEditClick = (post: PostItem) => {
     setEditingId(post.id);
@@ -93,7 +137,7 @@ export default function AdminPostsDashboard() {
   };
 
   // Xử lý XÓA bài viết
-  const handleDeleteClick = async (id: string) => {
+  const handleDeleteClick = async (id: number) => {
     if (!window.confirm("Ông có chắc chắn muốn xóa bài viết cẩm nang này không?")) return;
     
     const res = await tourApi.deletePost(id);
@@ -111,7 +155,11 @@ export default function AdminPostsDashboard() {
       return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
     }
 
-    // LÀM SẠCH DATA: Loại bỏ &nbsp; phá phách layout
+    if (!formData.image) {
+      return alert("Vui lòng chọn ảnh đại diện/banner cho bài viết cẩm nang!");
+    }
+
+    // Biện pháp chống tràn chữ: Quét sạch mã khoảng cách dính liền &nbsp; và \u00a0
     const cleanContent = formData.content
       .replace(/&nbsp;/g, " ")
       .replace(/\u00a0/g, " ");
@@ -121,16 +169,14 @@ export default function AdminPostsDashboard() {
       slug: formData.title.toLowerCase().trim().replace(/ /g, "-").replace(/[^\w-]+/g, ""),
       image: formData.image,
       summary: formData.summary,
-      content: cleanContent, // Chuỗi HTML sạch bóng không tì vết
+      content: cleanContent,
       blogCategoryId: formData.blogCategoryId,
     };
 
     let result;
     if (editingId) {
-      // Nếu có ID -> Gọi API UPDATE
       result = await tourApi.updatePost(editingId, payload);
     } else {
-      // Nếu không có ID -> Gọi API CREATE
       result = await tourApi.createPost(payload);
     }
 
@@ -141,8 +187,8 @@ export default function AdminPostsDashboard() {
       setFormData({
         title: "",
         summary: "",
-        blogCategoryId: categories[0]?.id || "",
-        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+        blogCategoryId: categories[0]?.id || 0,
+        image: "",
         content: "",
       });
       loadData();
@@ -173,7 +219,7 @@ export default function AdminPostsDashboard() {
         <button
           onClick={() => {
             setIsFormOpen(!isFormOpen);
-            if (isFormOpen) setEditingId(null); // Reset nếu hủy
+            if (isFormOpen) setEditingId(null);
           }}
           className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors ${
             isFormOpen ? "bg-slate-600" : "bg-emerald-600 hover:bg-emerald-700"
@@ -183,12 +229,36 @@ export default function AdminPostsDashboard() {
         </button>
       </div>
 
-      {/* FORM THÊM / SỬA BÀI VIẾT */}
+      {/* FORM THÊM / SỬA BÀI VIẾT TÍCH HỢP SUPABASE */}
       {isFormOpen && (
         <form onSubmit={handleSubmit} className="mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
           <h3 className="font-bold text-slate-900 md:col-span-2 text-xs uppercase text-emerald-600 tracking-wider">
             {editingId ? "Biểu mẫu Chỉnh sửa bài viết" : "Biểu mẫu Viết bài mới"}
           </h3>
+
+          {/* UPLOAD FILE ẢNH BANNER BÀI VIẾT */}
+          <div className="md:col-span-2 bg-white p-4 rounded-xl border border-dashed border-slate-300">
+            <label className="block text-xs font-semibold text-slate-700 mb-2">Ảnh bìa bài viết *</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              disabled={isUploading}
+              className="w-full text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer disabled:opacity-50"
+            />
+            {isUploading && (
+              <p className="text-emerald-600 text-[10px] mt-2 animate-pulse font-medium">
+                🚀 Đang tải tệp ảnh bài viết lên Supabase Bucket storage...
+              </p>
+            )}
+            
+            {formData.image && (
+              <div className="mt-3">
+                <p className="text-emerald-600 text-[10px] mb-1 font-semibold">✓ Ảnh CDN bài viết đã sẵn sàng:</p>
+                <img src={formData.image} alt="Preview" className="h-40 w-full object-cover rounded-lg border shadow-xs" />
+              </div>
+            )}
+          </div>
           
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Tiêu đề bài viết *</label>
@@ -202,16 +272,12 @@ export default function AdminPostsDashboard() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Ảnh Banner bài viết (URL)</label>
-            <input type="text" name="image" value={formData.image} onChange={handleInputChange} className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500 text-slate-500" />
-          </div>
-
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Mô tả ngắn (Summary) *</label>
             <textarea name="summary" value={formData.summary} onChange={handleInputChange} rows={3} className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500" placeholder="Tóm tắt nội dung bài viết..." />
           </div>
 
+          {/* BỘ GÕ WORD CHO BLOG */}
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-2">Nội dung chi tiết bài viết (Chuẩn HTML SEO)</label>
             <div className="bg-white rounded-md overflow-hidden border border-slate-300">
@@ -220,8 +286,14 @@ export default function AdminPostsDashboard() {
           </div>
 
           <div className="md:col-span-2 mt-4">
-            <button type="submit" className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-sm">
-              {editingId ? "Cập Nhật Bài Viết" : "Xuất Bản Bài Viết"}
+            <button 
+              type="submit" 
+              disabled={isUploading}
+              className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-colors shadow-sm ${
+                isUploading ? "bg-slate-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+            >
+              {isUploading ? "Vui lòng đợi ảnh tải xong..." : editingId ? "Cập Nhật Bài Viết" : "Xuất Bản Bài Viết"}
             </button>
           </div>
         </form>
@@ -254,19 +326,9 @@ export default function AdminPostsDashboard() {
                       {post.blogCategory?.name || "Tin tức"}
                     </span>
                   </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button
-                      onClick={() => handleEditClick(post)}
-                      className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
-                    >
-                      ✏️ Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(post.id)}
-                      className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md font-semibold transition-colors"
-                    >
-                      🗑️ Xóa
-                    </button>
+                  <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                    <button onClick={() => handleEditClick(post)} className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 px-2.5 py-1 rounded-md font-semibold transition-colors">✏️ Sửa</button>
+                    <button onClick={() => handleDeleteClick(post.id)} className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-md font-semibold transition-colors">🗑️ Xóa</button>
                   </td>
                 </tr>
               ))}

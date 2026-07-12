@@ -7,7 +7,7 @@ namespace TravelApi.Models
     public class Post
     {
         [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();  
+        public int Id { get; set; }
 
         [Required]
         [MaxLength(250)]
@@ -32,7 +32,7 @@ namespace TravelApi.Models
 
         // Khóa ngoại liên kết danh mục blog
         [Required]
-        public string BlogCategoryId { get; set; } = string.Empty;  
+        public int BlogCategoryId { get; set; } 
 
         [ForeignKey("BlogCategoryId")]
         public BlogCategory? BlogCategory { get; set; }

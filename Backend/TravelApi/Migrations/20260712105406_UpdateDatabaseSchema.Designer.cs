@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TravelApi.Data;
+using TravelApi.Datas;
 
 #nullable disable
 
 namespace TravelApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260630092939_UpdateDatabaseSchema")]
+    [Migration("20260712105406_UpdateDatabaseSchema")]
     partial class UpdateDatabaseSchema
     {
         /// <inheritdoc />
@@ -27,8 +27,11 @@ namespace TravelApi.Migrations
 
             modelBuilder.Entity("TravelApi.Models.BlogCategory", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -47,8 +50,11 @@ namespace TravelApi.Migrations
 
             modelBuilder.Entity("TravelApi.Models.Location", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -72,12 +78,14 @@ namespace TravelApi.Migrations
 
             modelBuilder.Entity("TravelApi.Models.Post", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
 
-                    b.Property<string>("BlogCategoryId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlogCategoryId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -109,13 +117,19 @@ namespace TravelApi.Migrations
 
                     b.HasIndex("BlogCategoryId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("TravelApi.Models.Tour", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -130,9 +144,8 @@ namespace TravelApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("LocationId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("LocationId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -156,15 +169,18 @@ namespace TravelApi.Migrations
 
                     b.HasIndex("LocationId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("Tours");
                 });
 
             modelBuilder.Entity("TravelApi.Models.Post", b =>
                 {
                     b.HasOne("TravelApi.Models.BlogCategory", "BlogCategory")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("BlogCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("BlogCategory");
@@ -173,12 +189,22 @@ namespace TravelApi.Migrations
             modelBuilder.Entity("TravelApi.Models.Tour", b =>
                 {
                     b.HasOne("TravelApi.Models.Location", "Location")
-                        .WithMany()
+                        .WithMany("Tours")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("TravelApi.Models.BlogCategory", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("TravelApi.Models.Location", b =>
+                {
+                    b.Navigation("Tours");
                 });
 #pragma warning restore 612, 618
         }

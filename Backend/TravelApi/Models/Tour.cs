@@ -7,7 +7,7 @@ namespace TravelApi.Models
     public class Tour
     {
         [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public int Id { get; set; }
 
         [Required]
         [MaxLength(250)]
@@ -27,7 +27,7 @@ namespace TravelApi.Models
         public decimal Price { get; set; }
 
         [Required]
-        public string LocationId { get; set; } = string.Empty;
+        public int LocationId { get; set; }
 
         [ForeignKey("LocationId")]
         public Location? Location { get; set; }

@@ -7,20 +7,20 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { tourApi } from "@/lib/api";
 
 interface BlogCategoryItem {
-  id: string;
+  id: number;
   name: string;
   slug: string;
 }
 
 interface PostItem {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   image: string;
   summary: string;
   content: string;
   createdAt: string;
-  blogCategoryId: string;
+  blogCategoryId: number;
   blogCategory?: BlogCategoryItem;
 }
 
@@ -35,7 +35,7 @@ function BlogListContent() {
   const router = useRouter();
   
   // Lấy ID danh mục từ URL (ví dụ: /blog?cat=abc-123)
-  const catParam = searchParams.get("cat"); 
+  const catParam = Number(searchParams.get("cat"));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,8 +64,7 @@ function BlogListContent() {
       post.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       post.summary.toLowerCase().includes(searchKeyword.toLowerCase());
     
-    // Nếu có catParam trên URL thì ép lọc theo danh mục đó, nếu không thì bỏ qua
-    const matchesCategory = !catParam || post.blogCategoryId === catParam;
+    const matchesCategory = !catParam || post.blogCategoryId === Number(catParam);
 
     return matchesKeyword && matchesCategory;
   });

@@ -7,20 +7,20 @@ import TourCard from "@/components/TourCard";
 import { tourApi } from "@/lib/api";
 
 interface LocationItem {
-  id: string;
+  id: number;
   name: string;
   slug: string;
 }
 
 interface TourItemNew {
-  id: string;
+  id: number;
   title: string;
   slug: string;
   image: string;
   duration: string;
   price: number;
   startLocation: string;
-  locationId: string;
+  locationId: number;
   location?: LocationItem;
   content: string;
 }
@@ -72,7 +72,7 @@ function ToursListContent() {
     const matchesKeyword = 
       tour.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       tour.startLocation.toLowerCase().includes(searchKeyword.toLowerCase()); 
-    const matchesLocation = selectedLocation === "all" || tour.locationId === selectedLocation; 
+    const matchesLocation = selectedLocation === "all" || tour.locationId === Number(selectedLocation);
     const matchesPrice = tour.price <= maxPrice; 
 
     return matchesKeyword && matchesLocation && matchesPrice; 
@@ -135,7 +135,7 @@ function ToursListContent() {
                 duration: tour.duration,
                 startLocation: tour.startLocation,
                 price: tour.price,
-                category: tour.location?.name || "Tour du lịch"
+                category: tour.location?.name  || "Tour du lịch"
               }} />
             ))}
           </div>

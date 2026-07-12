@@ -80,7 +80,7 @@ export default async function BlogDetailPage({ params }: Props) {
               <span>📅 Ngày đăng: {new Date(post.createdAt).toLocaleDateString("vi-VN")}</span>
               <span>•</span>
               <span className="bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-md font-semibold">
-                {post.blogCategory?.name || "Kinh nghiệm du lịch"}
+                {post.blogCategoryName || "Kinh nghiệm du lịch"}
               </span>
             </div>
 

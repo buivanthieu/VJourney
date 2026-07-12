@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,7 +16,8 @@ namespace TravelApi.Migrations
                 name: "BlogCategories",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Slug = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false)
                 },
@@ -28,7 +30,8 @@ namespace TravelApi.Migrations
                 name: "Locations",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Slug = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
@@ -42,14 +45,15 @@ namespace TravelApi.Migrations
                 name: "Posts",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Slug = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Image = table.Column<string>(type: "text", nullable: false),
                     Summary = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    BlogCategoryId = table.Column<string>(type: "text", nullable: false)
+                    BlogCategoryId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,20 +63,21 @@ namespace TravelApi.Migrations
                         column: x => x.BlogCategoryId,
                         principalTable: "BlogCategories",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Tours",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Slug = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     Image = table.Column<string>(type: "text", nullable: false),
                     Duration = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
-                    LocationId = table.Column<string>(type: "text", nullable: false),
+                    LocationId = table.Column<int>(type: "integer", nullable: false),
                     StartLocation = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false)
                 },
@@ -84,7 +89,7 @@ namespace TravelApi.Migrations
                         column: x => x.LocationId,
                         principalTable: "Locations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -93,9 +98,21 @@ namespace TravelApi.Migrations
                 column: "BlogCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_Slug",
+                table: "Posts",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tours_LocationId",
                 table: "Tours",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tours_Slug",
+                table: "Tours",
+                column: "Slug",
+                unique: true);
         }
 
         /// <inheritdoc />
