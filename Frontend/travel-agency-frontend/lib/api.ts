@@ -98,7 +98,8 @@
 // };
 
 // lib/api.ts
-const API_BASE_URL = "http://localhost:5187/api";
+// const API_BASE_URL = "http://localhost:5187/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // ĐỒNG BỘ ĐỊNH DẠNG THEO ĐÚNG CÁC CLASS DTO MỚI BÊN BACKEND C#
 export interface LocationResponseDto {
