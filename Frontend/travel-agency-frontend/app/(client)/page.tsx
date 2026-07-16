@@ -4,11 +4,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import TourCard from "@/components/TourCard";
-import { tourApi } from "@/lib/api";
+import { PostResponseDto, tourApi, TourResponseDto } from "@/lib/api";
 
 export default function HomePage() {
-  const [tours, setTours] = useState([]);
-  const [posts, setPosts] = useState([]);
+  const [tours, setTours] = useState<TourResponseDto[]>([]);
+  const [posts, setPosts] = useState<PostResponseDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

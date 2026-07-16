@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { tourApi } from "@/lib/api";
 
 interface LocationItem {
-  id: string;
+  id: number;
   name: string;
   slug: string;
 }
