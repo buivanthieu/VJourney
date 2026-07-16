@@ -4,7 +4,8 @@ using TravelApi.Repositories;
 using TravelApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
 // 1. Đăng ký Controllers và Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
