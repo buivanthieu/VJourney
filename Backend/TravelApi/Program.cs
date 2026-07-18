@@ -27,7 +27,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJsFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") // Đổi port cho đúng với Next.js của bro
+        policy.WithOrigins(
+            "http://localhost:3000",
+            "https://v-journey-nu.vercel.app"
+            )
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
