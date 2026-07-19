@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { tourApi } from "@/lib/api"; // Gọi trực tiếp từ file api tập trung của ông
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ export default function ContactPage() {
     phone: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -17,20 +19,33 @@ export default function ContactPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.phone.trim()) {
       return alert("Vui lòng nhập Tên và Số điện thoại liên hệ!");
     }
 
-    // Tạm thời log dữ liệu Front-End trước, xử lý Back-End sau
-    console.log("Dữ liệu form khách hàng gửi liên hệ (FE):", formData);
-    
-    setIsSubmitted(true);
-    alert("🎉 Cảm ơn ông! Hệ thống Front-End đã ghi nhận thông tin tư vấn.");
-    
-    // Reset Form
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    try {
+      setIsSubmitting(false);
+      setIsSubmitting(true);
+      
+      // GỌI HÀM API TRUNG TÂM BẮN PAYLOAD SANG REPOSITORY / SERVICE C#
+      const result = await tourApi.createContact(formData);
+
+      if (result.success) {
+        setIsSubmitted(true);
+        alert("🎉 Cảm ơn ông! Thông tin tư vấn đã được gửi thẳng vào Database Postgres.");
+        // Reset Form
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      } else {
+        alert(`❌ Thất bại: ${result.error || "Lỗi xử lý từ hệ thống server Backend!"}`);
+      }
+    } catch (err) {
+      console.error("Lỗi kết nối form liên hệ:", err);
+      alert("❌ Không thể kết nối đến Backend C#! Hãy chắc chắn Backend đang chạy.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,19 +73,10 @@ export default function ContactPage() {
               <span className="text-sm">✉️</span>
               <span><strong>Email tiếp nhận:</strong> contact@vjourney-travel.com</span>
             </p>
-            <p className="flex items-start gap-2">
-              <span className="text-sm">⏰</span>
-              <span><strong>Giờ làm việc:</strong> Thứ 2 - Thứ 7 (08:00 - 17:30)</span>
-            </p>
-          </div>
-
-          {/* Khối giả lập bản đồ Google Map bằng hình ảnh cho đẹp website */}
-          <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-800 aspect-video relative flex items-center justify-center text-[10px] text-slate-500">
-            [Bản đồ Google Maps vệ tinh vị trí văn phòng Quận 1]
           </div>
         </div>
 
-        {/* CỘT PHẢI (2/3): FORM ĐĂNG KÝ TƯ VẤN TOUR / LIÊN HỆ */}
+        {/* CỘT PHẢI (2/3): FORM ĐĂNG KÝ GỬI DATA VỀ C# */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
           <h3 className="text-slate-900 font-bold text-base mb-4 border-b pb-2">Để lại lời nhắn tư vấn miễn phí</h3>
           
@@ -96,15 +102,19 @@ export default function ContactPage() {
             </div>
 
             <div className="sm:col-span-2 mt-2">
-              <button type="submit" className="w-full rounded-lg bg-emerald-600 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition-colors shadow-xs">
-                Gửi Thông Tin Liên Hệ
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="w-full rounded-lg bg-emerald-600 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition-colors shadow-xs disabled:bg-slate-400"
+              >
+                {isSubmitting ? "🚀 Đang truyền tải dữ liệu vào Postgres..." : "Gửi Thông Tin Liên Hệ"}
               </button>
             </div>
           </form>
 
           {isSubmitted && (
             <p className="mt-4 text-xs font-medium text-emerald-600 text-center bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-              ✓ Yêu cầu liên hệ của ông đã được chuyển sang tab Console log của trình duyệt. Sẵn sàng tích hợp API .NET bất cứ lúc nào!
+              ✓ Yêu cầu liên hệ của ông đã được hệ thống lưu trữ thành công!
             </p>
           )}
         </div>
