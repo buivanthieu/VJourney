@@ -12,8 +12,8 @@ export default function AdminLayout({
       {/* SIDEBAR - Menu dọc bên trái */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full">
         <div className="p-5 border-b border-slate-800">
-          <Link href="/admin/dashboard" className="text-lg font-bold tracking-wider text-emerald-400">
-            ORIGIN SYSTEM
+          <Link href="/admin/dashboard" className="text-lg font-bold tracking-wider text-emerald-400 font-black">
+            VJOURNEY SYSTEM
           </Link>
           <span className="block text-xs text-slate-400 mt-1">Hệ thống quản trị nội bộ</span>
         </div>
@@ -37,10 +37,18 @@ export default function AdminLayout({
           >
             📂 Quản lý Cẩm nang / Blog
           </Link>
+          
+          {/* MỤC MỚI BỔ SUNG: QUẢN LÝ ĐƠN TƯ VẤN CỦA KHÁCH HÀNG */}
+          <Link 
+            href="/admin/dashboard/contacts" 
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+          >
+            📞 Quản lý Yêu cầu Tư vấn
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-slate-800 text-xs text-slate-500">
-          <Link href="/" className="hover:text-slate-300">← Quay lại Trang chủ khách</Link>
+          <Link href="/" className="hover:text-slate-300">← Quay lại Trang chủ </Link>
         </div>
       </aside>
 
@@ -48,10 +56,10 @@ export default function AdminLayout({
       <div className="flex-grow pl-64">
         {/* Topbar phụ */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm">
-          <div className="font-semibold text-slate-700">Bảng điều khiển</div>
+          <div className="font-semibold text-slate-700">Bảng điều khiển hệ thống</div>
           <div className="flex items-center gap-3 text-sm">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-slate-600 font-medium">Admin: Bùi Văn Thiều</span>
+            <span className="text-slate-600 font-medium">ADMIN</span>
           </div>
         </header>
 

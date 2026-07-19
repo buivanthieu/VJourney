@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import Header from "@/components/Header"; // Import component con vừa tách ra
+import AuthProvider from "@/components/AuthProvider";
 
 export default function ClientLayout({
   children,
@@ -10,10 +11,8 @@ export default function ClientLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      {/* HEADER MỚI XỊN SÒ - TỰ ĐỘNG THẢ DANH MỤC THEO ĐÚNG Ý ÔNG */}
+      <AuthProvider>
       <Header />
-
-      {/* MAIN CONTENT - Nơi hiển thị các trang con[cite: 9] */}
       <main className="flex-grow">{children}</main> 
 
       {/* FOOTER - Chân trang (Giữ nguyên gốc chuẩn SEO)[cite: 9] */}
@@ -43,6 +42,8 @@ export default function ClientLayout({
           © {new Date().getFullYear()} Origin Travel. All rights reserved.
         </div> 
       </footer>
+      </AuthProvider>
     </div>
+    
   );
 }

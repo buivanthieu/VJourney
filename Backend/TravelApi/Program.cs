@@ -17,6 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // 3. Đăng ký Dependency Injection cho tầng Repository & Toàn bộ Services
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
+builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IBlogCategoryService, BlogCategoryService>();

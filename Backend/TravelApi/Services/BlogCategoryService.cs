@@ -26,7 +26,8 @@ namespace TravelApi.Services
         public async Task<BlogCategoryResponseDto> CreateAsync(BlogCategoryCreateDto dto)
         {
             var category = new BlogCategory { Name = dto.Name, Slug = GenerateSlug(dto.Name) };
-            await _categoryRepo.AddAsync(category); await _categoryRepo.SaveAsync();
+            await _categoryRepo.AddAsync(category); 
+            await _categoryRepo.SaveAsync();
             return new BlogCategoryResponseDto { Id = category.Id, Name = category.Name, Slug = category.Slug };
         }
 

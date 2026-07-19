@@ -139,7 +139,19 @@ export interface PostResponseDto {
   blogCategoryId: number; // Chuyển sang int
   blogCategoryName: string; // Phẳng hóa dữ liệu theo Dto mới
 }
+export interface ContactResponseDto {
+  id: number;
+  name: string;
+  phone: string;
+  email: string | null;
+  message: string | null;
+  createdAt: string;
+}
 
+export interface AuthResponseDto {
+  token: string;
+  username: string;
+}
 export const tourApi = {
   // ==================== PHÂN HỆ TOUR ====================
   getAllTours: async (): Promise<TourResponseDto[]> => {
@@ -234,4 +246,71 @@ export const tourApi = {
       return { success: false };
     }
   },
+
+  // ==================== PHÂN HỆ CONTACT (CRUD ĐỀU CHẠY SERVICE C#) ====================
+  // API lấy toàn bộ danh sách liên hệ dành cho Admin Dashboard
+  getAllContacts: async (): Promise<ContactResponseDto[]> => {
+    const res = await fetch(`${API_BASE_URL}/contact`, { cache: "no-store" });
+    return res.ok ? await res.json() : [];
+  },
+
+  // API lấy chi tiết một liên hệ theo ID nếu cần xem sâu
+  getContactById: async (id: number): Promise<ContactResponseDto | null> => {
+    const res = await fetch(`${API_BASE_URL}/contact/${id}`, { cache: "no-store" });
+    return res.ok ? await res.json() : null;
+  },
+
+  // API Client gửi form đăng ký tư vấn lên Postgres
+  createContact: async (data: { name: string; phone: string; email?: string; message?: string }) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return { success: res.ok, data: res.ok ? await res.json() : null };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  // API Admin xóa bỏ một form liên hệ rác / đã xử lý
+  deleteContact: async (id: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/contact/${id}`, { method: "DELETE" });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
+    }
+  },
+
+  // ==================== PHÂN HỆ AUTH ADMIN & MARKETING LEAD GOOGLE ====================
+  // API Đăng nhập Admin lấy chuỗi bảo mật JWT Token từ C# Service
+  adminLogin: async (data: { username: string; password: string }): Promise<{ success: boolean; token?: string; username?: string; message?: string }> => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      return { success: res.ok, ...result };
+    } catch (err: any) {
+      return { success: false, message: "Không thể kết nối đến máy chủ xác thực!" };
+    }
+  },
+
+  // API bắn Gmail thu được từ nút bấm Google Sign-In sang C# lưu bảng Leads
+  syncGoogleLead: async (data: { email: string; name: string | null; provider: string }) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/google/callback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return { success: res.ok };
+    } catch (err) {
+      return { success: false };
+    }
+  }
 };

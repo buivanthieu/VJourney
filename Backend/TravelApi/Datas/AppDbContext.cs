@@ -11,7 +11,9 @@ namespace TravelApi.Datas
         public DbSet<Tour> Tours { get; set; }
         public DbSet<BlogCategory> BlogCategories { get; set; }
         public DbSet<Post> Posts { get; set; }
-
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<MarketingLead> MarketingLeads { get; set; }
+        public DbSet<AdminUser> AdminUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -33,6 +35,16 @@ namespace TravelApi.Datas
             // Index cho Slugs để tìm kiếm nhanh tối ưu SEO
             modelBuilder.Entity<Tour>().HasIndex(t => t.Slug).IsUnique();
             modelBuilder.Entity<Post>().HasIndex(p => p.Slug).IsUnique();
+
+            modelBuilder.Entity<AdminUser>().HasData(
+                new AdminUser
+                {
+                    Id = 1,
+                    Username = "admin",
+                    PasswordHash = "vjourney@2026",
+                    FullName = "Quản trị viên Vjourney"
+                }
+            );
         }
     }
 }
