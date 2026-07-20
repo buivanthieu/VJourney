@@ -34,8 +34,8 @@ export default function ClientLayout({
           </div>
           <div>
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên hệ văn phòng</h3> 
-            <p className="text-sm">📍 Địa chỉ: 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh</p> 
-            <p className="text-sm mt-1">✉️ Email: info@origintravel-sample.com</p> 
+            <p className="text-sm"> Địa chỉ: 123 Đường zxc, Xã Phú Xuyên, Hà Nội</p> 
+            <p className="text-sm mt-1"> Email: info@origintravel-sample.com</p> 
           </div>
         </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8 pt-8 border-t border-slate-800 text-center text-xs"> 

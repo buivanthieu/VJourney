@@ -31,9 +31,9 @@ export default function HomePage() {
 
   // --- FAKE DATA PHỤC VỤ UY TÍN WEBSITE ---
   const fakeReasons = [
-    { title: "Giá niêm yết minh bạch", desc: "Cam kết không phát sinh chi phí ẩn trong suốt hành trình tour.", icon: "💰" },
-    { title: "Đội ngũ điều hành 10 năm", desc: "Hỗ trợ khách hàng 24/7, am hiểu từng cung đường và điểm đến.", icon: "🛡️" },
-    { title: "Bảo hiểm du lịch cao cấp", desc: "An tâm tuyệt đối với mức bảo hiểm lên tới 100.000.000 VND/vụ.", icon: "✅" }
+    { title: "Giá niêm yết minh bạch", desc: "Cam kết không phát sinh chi phí ẩn trong suốt hành trình tour.", icon: "" },
+    { title: "Đội ngũ điều hành 10 năm", desc: "Hỗ trợ khách hàng 24/7, am hiểu từng cung đường và điểm đến.", icon: "" },
+    { title: "Bảo hiểm du lịch cao cấp", desc: "An tâm tuyệt đối với mức bảo hiểm lên tới 100.000.000 VND/vụ.", icon: "" }
   ];
 
   const fakeTestimonials = [
@@ -97,7 +97,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">🔥 Tour Du Lịch Nổi Bật</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Tour Du Lịch Nổi Bật</h2>
             <p className="text-xs text-slate-500 mt-1">Các chương trình tour đang có lượng khách đăng ký đông đảo nhất tuần này.</p>
           </div>
           <Link href="/tours" className="text-xs font-bold text-emerald-600 hover:underline">Xem tất cả tour →</Link>
@@ -127,7 +127,7 @@ export default function HomePage() {
       <div className="bg-slate-50 py-12 border-y border-slate-200/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-10">
-            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">📸 Khoảnh Khắc Khách Đi Tour</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl"> Khoảnh Khắc Khách Đi Tour</h2>
             <p className="text-xs text-slate-500 mt-2">Hình ảnh chụp thực tế đầy cảm xúc từ những đoàn khách đồng hành cùng Origin Travel.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -143,7 +143,7 @@ export default function HomePage() {
       {/* 5. SECTION THỰC TẾ: ĐÁNH GIÁ TỪ KHÁCH HÀNG (TESTIMONIALS FAKE) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-12">
-          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">💬 Đánh Giá Từ Khách Hàng</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl"> Đánh Giá Từ Khách Hàng</h2>
           <p className="text-xs text-slate-500 mt-2">98% khách hàng phản hồi hài lòng và sẵn sàng giới thiệu cho bạn bè.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -167,7 +167,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">📰 Bài Viết & Cẩm Nang Du Lịch Mới</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Bài Viết & Cẩm Nang Du Lịch Mới</h2>
             <p className="text-xs text-slate-500 mt-1">Cập nhật xu hướng, thông tin vé cáp treo, kinh nghiệm ăn chơi cực bổ ích.</p>
           </div>
           <Link href="/blog" className="text-xs font-bold text-amber-600 hover:underline">Xem tất cả bài viết →</Link>
@@ -189,7 +189,7 @@ export default function HomePage() {
                     </h3>
                     <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{post.summary}</p>
                   </div>
-                  <span className="text-[10px] text-slate-400 block">📅 {new Date(post.createdAt).toLocaleDateString("vi-VN")}</span>
+                  <span className="text-[10px] text-slate-400 block">{new Date(post.createdAt).toLocaleDateString("vi-VN")}</span>
                 </div>
               </article>
             ))}

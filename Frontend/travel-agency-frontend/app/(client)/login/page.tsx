@@ -29,11 +29,11 @@ export default function GeneralLoginPage() {
         // Đẩy thẳng vào trang quản trị nội bộ
         router.push("/admin/dashboard");
       } else {
-        alert(`❌ Thất bại: ${result.message || "Sai thông tin tài khoản!"}`);
+        alert(`Thất bại: ${result.message || "Sai thông tin tài khoản!"}`);
       }
     } catch (err) {
       console.error("Lỗi đăng nhập:", err);
-      alert("❌ Không thể kết nối đến máy chủ xác thực C#!");
+      alert(" Không thể kết nối đến máy chủ xác thực C#!");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +64,7 @@ export default function GeneralLoginPage() {
             disabled={isSubmitting}
             className="w-full py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors shadow-xs disabled:bg-slate-400"
           >
-            {isSubmitting ? "🚀 Đang xác thực..." : "Đăng Nhập Quản Trị"}
+            {isSubmitting ? " Đang xác thực..." : "Đăng Nhập Quản Trị"}
           </button>
         </form>
 
@@ -80,7 +80,7 @@ export default function GeneralLoginPage() {
           onClick={() => signIn("google")}
           className="w-full py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xs"
         >
-          <span>👋</span> Đăng nhập nhanh bằng Google
+          <span></span> Đăng nhập nhanh bằng Google
         </button>
       </div>
     </div>
