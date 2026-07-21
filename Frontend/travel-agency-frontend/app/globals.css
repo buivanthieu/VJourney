@@ -24,3 +24,19 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Ép khung soạn thảo Quill rộng rãi & có chiều cao tối thiểu */
+.ql-container.ql-snow {
+  min-height: 280px; /* Chiều cao tối thiểu của vùng gõ văn bản */
+  font-size: 14px;  /* Chữ gõ vừa mắt */
+}
+
+.ql-editor {
+  min-height: 280px;
+}
+
+/* Fix lỗi toolbar bị khuất border */
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  background-color: #f8fafc; /* Nền xám nhẹ cho thanh công cụ */
+}

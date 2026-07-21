@@ -108,7 +108,7 @@ export default async function BlogDetailPage({ params }: Props) {
           {/* MỤC 1: BÀI VIẾT BẠN CÓ THỂ THÍCH */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-xs">
             <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b pb-2 mb-4 flex items-center gap-2">
-              📝 Có thể bạn sẽ thích
+              Có thể bạn sẽ thích
             </h3>
             {recommendedPosts.length === 0 ? (
               <p className="text-xs text-slate-400">Chưa có bài viết đề xuất khác.</p>
@@ -126,7 +126,7 @@ export default async function BlogDetailPage({ params }: Props) {
                         {p.title}
                       </h4>
                       <span className="text-[10px] text-slate-400 block mt-1">
-                        📅 {new Date(p.createdAt).toLocaleDateString("vi-VN")}
+                         {new Date(p.createdAt).toLocaleDateString("vi-VN")}
                       </span>
                     </div>
                   </Link>
@@ -138,7 +138,7 @@ export default async function BlogDetailPage({ params }: Props) {
           {/* MỤC 2: TOUR DU LỊCH HOT GỢI Ý (TĂNG DOANH THU) */}
           <div className="sticky top-24 bg-white p-5 rounded-2xl border border-slate-200/60 shadow-xs">
             <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b pb-2 mb-4 flex items-center gap-2">
-              🔥 Tour du lịch nổi bật
+              Tour du lịch nổi bật
             </h3>
             {hotTours.length === 0 ? (
               <p className="text-xs text-slate-400">Hệ thống chưa ghi nhận Tour mới.</p>
@@ -155,7 +155,7 @@ export default async function BlogDetailPage({ params }: Props) {
                       <h4 className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-emerald-600 transition-colors">
                         {t.title}
                       </h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">🕒 Thời gian: {t.duration}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5"> Thời gian: {t.duration}</p>
                       <span className="text-xs font-extrabold text-amber-600 block mt-0.5">
                         {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(t.price)}
                       </span>

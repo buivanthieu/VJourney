@@ -83,7 +83,7 @@ export default async function TourDetailPage({ params }: Props) {
             <div><span className="block text-slate-400 text-xs">Vùng miền</span><span className="font-semibold text-slate-800">🗺️ {tour.locationName || "Toàn quốc"}</span></div>{/* Ăn theo DTO phẳng */}
           </div>
 
-          {/* KHU VỰC ĐỔ NỘI DUNG HTML CHI TIẾT (CHUẨN SEO CHỐNG VỠ CHỮ) */}
+          {/* KHU VỰC ĐỔ NỘI DUNG HTML CHI TIẾT */}
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm w-full overflow-hidden"> 
             <h2 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">Chi tiết chương trình & Lịch trình</h2> 
             
@@ -116,7 +116,7 @@ export default async function TourDetailPage({ params }: Props) {
           {/* MỤC 1 BỔ SUNG: KHỐI TOUR DU LỊCH LIÊN QUAN / CÙNG KHU VỰC */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b pb-2 mb-4 flex items-center gap-2">
-              🧭 Hầm tour cùng khu vực
+              Hầm tour cùng khu vực
             </h3>
             {relatedTours.length === 0 ? (
               <p className="text-xs text-slate-400">Chưa có chương trình tour tương tự.</p>
@@ -147,7 +147,7 @@ export default async function TourDetailPage({ params }: Props) {
           {/* MỤC 2 BỔ SUNG: KHỐI CẨM NANG & KINH NGHIỆM DU LỊCH NÊN ĐỌC */}
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider border-b pb-2 mb-4 flex items-center gap-2">
-              📰 Cẩm nang kinh nghiệm hay
+              Cẩm nang kinh nghiệm hay
             </h3>
             {hotPosts.length === 0 ? (
               <p className="text-xs text-slate-400">Chưa có bài viết chia sẻ kinh nghiệm.</p>
@@ -165,7 +165,7 @@ export default async function TourDetailPage({ params }: Props) {
                         {p.title}
                       </h4>
                       <span className="text-[10px] text-slate-400 block mt-1">
-                        📅 {new Date(p.createdAt).toLocaleDateString("vi-VN")}
+                        {new Date(p.createdAt).toLocaleDateString("vi-VN")}
                       </span>
                     </div>
                   </Link>

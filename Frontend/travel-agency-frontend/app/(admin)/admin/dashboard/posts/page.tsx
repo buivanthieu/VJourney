@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient"; // Kết nối Supabase Cloud c
 
 // Import CSS giao diện của bộ gõ Quill
 import "react-quill-new/dist/quill.snow.css";
+import RichTextEditor from "@/components/RichTextEditor";
 
 // Tải động bộ gõ Quill Editor và tắt SSR để tránh lỗi render phía máy chủ
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -277,11 +278,17 @@ export default function AdminPostsDashboard() {
             <textarea name="summary" value={formData.summary} onChange={handleInputChange} rows={3} className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-emerald-500" placeholder="Tóm tắt nội dung bài viết..." />
           </div>
 
-          {/* BỘ GÕ WORD CHO BLOG */}
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-slate-700 mb-2">Nội dung chi tiết bài viết (Chuẩn HTML SEO)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-2">
+              Bài viết chi tiết
+            </label>
             <div className="bg-white rounded-md overflow-hidden border border-slate-300">
-              <ReactQuill theme="snow" value={formData.content} onChange={handleEditorChange} modules={quillModules} className="h-72 mb-12" />
+              <RichTextEditor
+                value={formData.content}
+                onChange={(contentValue) => setFormData(prev => ({ ...prev, content: contentValue }))}
+                bucketFolder="posts" 
+                placeholder="Nhập bài viết chi tiết ..."
+              />
             </div>
           </div>
 

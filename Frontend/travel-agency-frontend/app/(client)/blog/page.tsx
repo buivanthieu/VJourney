@@ -87,7 +87,7 @@ function BlogListContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 mb-8 gap-4">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl flex items-center gap-2">
-                {catParam ? `📁 Danh mục: ${currentCategory?.name || "Đang tải..."}` : "🔍 Kết quả tìm kiếm toán cục"}
+                {catParam ? ` Danh mục: ${currentCategory?.name || "Đang tải..."}` : "🔍 Kết quả tìm kiếm toán cục"}
               </h2>
               <p className="text-xs text-slate-400 mt-1">Tìm thấy {filteredPosts.length} bài viết phù hợp</p>
             </div>

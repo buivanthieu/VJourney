@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { tourApi } from "@/lib/api";
-import { supabase } from "@/lib/supabaseClient"; // Import client kết nối Supabase của ông
-
+import { supabase } from "@/lib/supabaseClient";
+import RichTextEditor from "@/components/RichTextEditor";
 // Import CSS giao diện của bộ gõ Quill
 import "react-quill-new/dist/quill.snow.css";
 
@@ -302,12 +302,11 @@ export default function AdminDashboard() {
               Lịch trình chi tiết & Điều khoản dịch vụ (Chuẩn SEO)
             </label>
             <div className="bg-white rounded-md overflow-hidden border border-slate-300">
-              <ReactQuill 
-                theme="snow"
+              <RichTextEditor
                 value={formData.content}
-                onChange={handleEditorChange}
-                modules={quillModules}
-                className="h-72 mb-12"
+                onChange={(contentValue) => setFormData(prev => ({ ...prev, content: contentValue }))}
+                bucketFolder="tours" 
+                placeholder="Nhập lịch trình tour chi tiết ..."
               />
             </div>
           </div>
