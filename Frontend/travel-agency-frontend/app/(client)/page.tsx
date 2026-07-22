@@ -63,7 +63,7 @@ export default function HomePage() {
             Khám Phá Việt Nam Theo Cách Riêng Của Bạn
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
-            Origin Travel cung cấp các tour du lịch trọn gói chất lượng cao, mang lại trải nghiệm chân thực và an tâm nhất.
+           VJourney cung cấp các tour du lịch trọn gói chất lượng cao, mang lại trải nghiệm chân thực và an tâm nhất.
           </p>
           <div className="flex justify-center gap-4">
             <Link href="/tours" className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-md">
@@ -79,7 +79,7 @@ export default function HomePage() {
       {/* 2. SECTION LÝ DO CHỌN CHÚNG TÔI (CAM KẾT) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-12">
-          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Giá Trị Cốt Lõi Của Origin Travel</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Giá Trị Cốt Lõi Của VJourney</h2>
           <p className="text-xs text-slate-500 mt-2">Chúng tôi không chỉ bán tour, chúng tôi kiến tạo những kỷ niệm đẹp vô giá.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -128,7 +128,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-10">
             <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl"> Khoảnh Khắc Khách Đi Tour</h2>
-            <p className="text-xs text-slate-500 mt-2">Hình ảnh chụp thực tế đầy cảm xúc từ những đoàn khách đồng hành cùng Origin Travel.</p>
+            <p className="text-xs text-slate-500 mt-2">Hình ảnh chụp thực tế đầy cảm xúc từ những đoàn khách đồng hành cùng VJourney.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {fakeGallery.map((url, index) => (

@@ -15,11 +15,10 @@ export default function ClientLayout({
       <Header />
       <main className="flex-grow">{children}</main> 
 
-      {/* FOOTER - Chân trang (Giữ nguyên gốc chuẩn SEO)[cite: 9] */}
       <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800"> 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8"> 
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">Origin Travel Co., Ltd</h3> 
+            <h3 className="text-white font-bold text-lg mb-4">VJourney Trading And Tourism</h3> 
             <p className="text-sm leading-relaxed">
               Nhà tổ chức tour du lịch chuyên nghiệp, thiết kế lịch trình riêng độc đáo, trải nghiệm chân thực.
             </p> 
@@ -34,12 +33,12 @@ export default function ClientLayout({
           </div>
           <div>
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên hệ văn phòng</h3> 
-            <p className="text-sm"> Địa chỉ: 123 Đường zxc, Xã Phú Xuyên, Hà Nội</p> 
-            <p className="text-sm mt-1"> Email: info@origintravel-sample.com</p> 
+            <p className="text-sm"> Địa chỉ: thôn An Định, Xã Phú Xuyên, Hà Nội</p> 
+            <p className="text-sm mt-1"> Email: info@vjourney-sample.com</p> 
           </div>
         </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8 pt-8 border-t border-slate-800 text-center text-xs"> 
-          © {new Date().getFullYear()} Origin Travel. All rights reserved.
+          © {new Date().getFullYear()} VJourney. All rights reserved.
         </div> 
       </footer>
       </AuthProvider>
