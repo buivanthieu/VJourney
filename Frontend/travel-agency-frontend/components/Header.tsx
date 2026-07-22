@@ -121,7 +121,7 @@ export default function Header() {
             Đăng nhập
           </Link>
           <a href="tel:0900123456" className="text-sm font-semibold text-slate-950 bg-amber-400 px-4 py-2 rounded-full hover:bg-amber-500 transition-colors"> 
-            Hotline: 090 123 456 
+            Hotline: 0988 775 128
           </a> 
         </div>
 
@@ -204,7 +204,7 @@ export default function Header() {
           {/* Nút Hotline Mobile */}
           <div className="pt-4">
             <a href="tel:0900123456" className="w-full text-center block text-sm font-bold text-slate-950 bg-amber-400 py-3 rounded-xl hover:bg-amber-500 transition-colors">
-              Gọi Ngay Hotline: 090 123 456
+              Gọi Ngay Hotline: 0988 775 128
             </a>
           </div>
         </div>
